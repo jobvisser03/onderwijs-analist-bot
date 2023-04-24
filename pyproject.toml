@@ -6,12 +6,13 @@ authors = ["Job Visser <job.visser@leaseplan.com>"]
 
 [tool.poetry.dependencies]
 python = "~3.10"
-farm-haystack = "~1.15"
-ipykernel = "^6.22.0"
 streamlit = "^1.21.0"
+markdown = "^3.4.3"
 st-annotated-text = "^4.0.0"
 
 [tool.poetry.dev-dependencies]
+# farm-haystack = "~1.15"
+# ipykernel = "^6.22.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

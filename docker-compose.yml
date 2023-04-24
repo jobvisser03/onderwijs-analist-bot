@@ -22,7 +22,7 @@ services:
         condition: service_healthy
 
   ui:
-    image: "deepset/demo-explore-the-world"
+    image: "jbrvisser/webapp-oab"
     ports:
       - 8501:8501
     restart: on-failure
@@ -38,4 +38,4 @@ services:
       - DEFAULT_NUMBER_OF_ANSWERS
     volumes:
       - ./data:/data
-    command: "/bin/bash -c 'sleep 15 && python -m streamlit run ui/webapp.py'"
+    command: "/bin/bash -c 'sleep 15 && python -m streamlit run onderwijs_analist_bot/webapp.py'"

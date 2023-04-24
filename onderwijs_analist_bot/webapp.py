@@ -9,11 +9,10 @@ import pandas as pd
 import streamlit as st
 from annotated_text import annotation
 from markdown import markdown
-from utils import (get_backlink, haystack_is_ready, haystack_version, query,
-                   send_feedback, upload_doc)
 
-# from ui.utils import (get_backlink, haystack_is_ready, haystack_version, query,
-                    #   send_feedback, upload_doc)
+from onderwijs_analist_bot.utils import (get_backlink, haystack_is_ready,
+                                         haystack_version, query,
+                                         send_feedback, upload_doc)
 
 # Adjust to a question that you would like users to see in the search bar when they load the UI:
 DEFAULT_QUESTION_AT_STARTUP = os.getenv("DEFAULT_QUESTION_AT_STARTUP", "What's the capital of France?")
@@ -50,7 +49,7 @@ def upload_init_dataset(dataset_path: str = "/data/dataset"):
 def main():
     upload_init_dataset()
 
-    st.set_page_config(page_title="Haystack Demo", page_icon="https://haystack.deepset.ai/img/HaystackIcon.png")
+    st.set_page_config(page_title="Onderwijs Analis Bot", page_icon="inspectie.png")
 
     # Persistent state
     set_state_if_absent("question", DEFAULT_QUESTION_AT_STARTUP)
@@ -66,14 +65,12 @@ def main():
         st.session_state.raw_json = None
 
     # Title
-    st.write("# Haystack Demo - Explore the world")
+    st.write("# DE Inspectie Bot")
     st.markdown(
         """
-This demo takes its data from a selection of Wikipedia pages crawled in November 2021 on the topic of
+This demo can be fed with school data like school guides and strategical plans.
 
-<h3 style='text-align:center;padding: 0 0 1rem;'>Countries and capital cities</h3>
-
-Ask any question on this topic and see if Haystack can find the correct answer to your query!
+Aks questions to the data as required for a school or board analysis.
 
 *Note: do not use keywords, but full-fledged questions.* The demo is not optimized to deal with keyword queries and might misunderstand you.
 """,
