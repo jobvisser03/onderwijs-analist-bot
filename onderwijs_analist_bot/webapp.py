@@ -1,16 +1,15 @@
+import logging
 import os
 import sys
-import logging
-from pathlib import Path
 from json import JSONDecodeError
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 from annotated_text import annotation
 from markdown import markdown
-
-from ui.utils import haystack_is_ready, query, send_feedback, upload_doc, haystack_version, get_backlink
-
+from ui.utils import (get_backlink, haystack_is_ready, haystack_version, query,
+                      send_feedback, upload_doc)
 
 # Adjust to a question that you would like users to see in the search bar when they load the UI:
 DEFAULT_QUESTION_AT_STARTUP = os.getenv("DEFAULT_QUESTION_AT_STARTUP", "What's the capital of France?")
@@ -25,14 +24,26 @@ EVAL_LABELS = os.getenv("EVAL_FILE", str(Path(__file__).parent / "eval_labels_ex
 
 # Whether the file upload should be enabled or not
 DISABLE_FILE_UPLOAD = bool(os.getenv("DISABLE_FILE_UPLOAD"))
+DISABLE_INIT_DATASET_UPLOAD = bool(os.getenv("DISABLE_INIT_DATASET_UPLOAD"))
 
 
 def set_state_if_absent(key, value):
     if key not in st.session_state:
         st.session_state[key] = value
 
+def upload_init_dataset():
+    if not DISABLE_INIT_DATASET_UPLOAD:
+        data_files = Path("/data/dataset")
+        for data_file in data_files.glob('*.*'):
+            if data_file.is_file():
+                try:
+                    upload_doc(data_file)
+                except Exception as e:
+                    raise e
+
 
 def main():
+    upload_init_dataset()
 
     st.set_page_config(page_title="Haystack Demo", page_icon="https://haystack.deepset.ai/img/HaystackIcon.png")
 
@@ -100,10 +111,10 @@ Ask any question on this topic and see if Haystack can find the correct answer t
                     if debug:
                         st.subheader("REST API JSON response")
                         st.sidebar.write(raw_json)
-                except Exception as e:
+                except Exception:
                     st.sidebar.write(str(data_file.name) + " &nbsp;&nbsp; ❌ ")
                     st.sidebar.write("_This file could not be parsed, see the logs for more information._")
-                
+
 
     hs_version = ""
     try:
@@ -143,7 +154,7 @@ Ask any question on this topic and see if Haystack can find the correct answer t
         df = pd.read_csv(EVAL_LABELS, sep=";")
     except Exception:
         st.error(
-            f"The eval file was not found. Please check the demo's [README](https://github.com/deepset-ai/haystack/tree/main/ui/README.md) for more information."
+            "The eval file was not found. Please check the demo's [README](https://github.com/deepset-ai/haystack/tree/main/ui/README.md) for more information."
         )
         sys.exit(
             f"The eval file was not found under `{EVAL_LABELS}`. Please check the README (https://github.com/deepset-ai/haystack/tree/main/ui/README.md) for more information."
@@ -211,7 +222,7 @@ Ask any question on this topic and see if Haystack can find the correct answer t
                 st.session_state.results, st.session_state.raw_json = query(
                     question, top_k_reader=top_k_reader, top_k_retriever=top_k_retriever
                 )
-            except JSONDecodeError as je:
+            except JSONDecodeError:
                 st.error("👓 &nbsp;&nbsp; An error occurred reading the results. Is the document store working?")
                 return
             except Exception as e:

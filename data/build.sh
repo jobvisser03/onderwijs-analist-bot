@@ -12,10 +12,11 @@ set -o pipefail
 #
 
 # STEP 0: initialize config variables
-: "${DATA_IMAGE_NAME:=deepset/elasticsearch-countries-and-capitals}"
+: "${DATA_IMAGE_NAME:=jbrvisser/elasticsearch-oab}"
 : "${HAYSTACK_IMAGE_NAME:=deepset/haystack:cpu-main}"
 : "${DATASET_DIR:=dataset}"
-: "${NETWORK:=explore_the_world}"
+: "${NETWORK:=network-aob}"
+: "${DATA_IMAGE_PUSH:=YES}"
 
 if [ -z "$DATA_IMAGE_PLATFORM" ]
 then
@@ -80,15 +81,17 @@ docker stop $hs_id
 
 # STEP 7: make the changes to the Elasticsearch image persistent so we don't need to re-index the dataset
 # again
+# TODO THIS IS CAUSING THE repo name should be canonical error
 echo "Saving changes to a new Docker image..."
-docker commit $es_id $image_name
+image_name_persistent="jbrvisser/elasticsearch-oab-persistent"
+docker commit $es_id $image_name_persistent
 docker image ls --digests
 
 # STEP 8: push the image to Docker Hub, authentication is needed
 if [ ! -z "$DATA_IMAGE_PUSH" ]
 then
-    echo "Pushing $image_name to Docker Hub..."
-    docker push $image_name
+    echo "Pushing $image_name_persistent to Docker Hub..."
+    docker push $image_name_persistent
 fi
 
 echo "Done"
