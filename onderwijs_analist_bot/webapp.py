@@ -1,3 +1,4 @@
+#%%
 import logging
 import os
 import sys
@@ -8,8 +9,11 @@ import pandas as pd
 import streamlit as st
 from annotated_text import annotation
 from markdown import markdown
-from ui.utils import (get_backlink, haystack_is_ready, haystack_version, query,
-                      send_feedback, upload_doc)
+from utils import (get_backlink, haystack_is_ready, haystack_version, query,
+                   send_feedback, upload_doc)
+
+# from ui.utils import (get_backlink, haystack_is_ready, haystack_version, query,
+                    #   send_feedback, upload_doc)
 
 # Adjust to a question that you would like users to see in the search bar when they load the UI:
 DEFAULT_QUESTION_AT_STARTUP = os.getenv("DEFAULT_QUESTION_AT_STARTUP", "What's the capital of France?")
@@ -31,16 +35,17 @@ def set_state_if_absent(key, value):
     if key not in st.session_state:
         st.session_state[key] = value
 
-def upload_init_dataset():
+def upload_init_dataset(dataset_path: str = "/data/dataset"):
     if not DISABLE_INIT_DATASET_UPLOAD:
-        data_files = Path("/data/dataset")
-        for data_file in data_files.glob('*.*'):
-            if data_file.is_file():
+        for data_path in Path(dataset_path).glob('*.*'):
+            if data_path.is_file():
                 try:
-                    upload_doc(data_file)
+                    upload_doc(open(data_path,'rb'))
+                    print(f"{data_path} uploaded")
                 except Exception as e:
                     raise e
 
+#%%
 
 def main():
     upload_init_dataset()
